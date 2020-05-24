@@ -4,8 +4,5 @@ services:
   - docker
 
 before_install:
-  - CGO_ENABELED=0 go build
-
-install:
   - docker build -t leonnicolas/simple_webserver .
   - docker run --rm -d -p 80:8080 leonnicolas/simple_webserver
