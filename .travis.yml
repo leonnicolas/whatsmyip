@@ -1,8 +1,28 @@
-language: go
+dist: bionic
+
+language: bash
 
 services:
   - docker
 
-before_install:
-  - docker build -t leonnicolas/simple_webserver .
-  - docker run --rm -d -p 80:8080 leonnicolas/simple_webserver
+env:
+  global:
+    - DOCKER_CLI_EXPERIMENTAL=enabled
+
+script:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker build -t leonnicolas/whatsmyip:arm . --build-arg ARCH=arm
+  - docker build -t leonnicolas/whatsmyip:arm64 . --build-arg ARCH=arm64
+  - docker build -t leonnicolas/whatsmyip:amd64 . --build-arg ARCH=amd64
+  - docker push leonnicolas/whatsmyip:arm
+  - docker push leonnicolas/whatsmyip:arm64
+  - docker push leonnicolas/whatsmyip:amd64
+  - docker manifest create --amend leonnicolas/whatsmyip:latest leonnicolas/whatsmyip:arm leonnicolas/whatsmyip:arm64 leonnicolas/whatsmyip:amd64
+  - docker manifest annotate leonnicolas/whatsmyip:latest leonnicolas/whatsmyip:arm --os linux --arch arm --variant v7 
+  - docker manifest annotate leonnicolas/whatsmyip:latest leonnicolas/whatsmyip:arm64 --os linux --arch arm64 --variant v8 
+  - docker manifest push leonnicolas/whatsmyip:latest
+  - export tag="$(git rev-parse --abbrev-ref HEAD | tr / -)-$(date +%Y-%m-%d)-$(git rev-parse --short HEAD)"
+  - docker manifest create --amend leonnicolas/whatsmyip:$tag leonnicolas/whatsmyip:arm leonnicolas/whatsmyip:arm64 leonnicolas/whatsmyip:amd64
+  - docker manifest annotate leonnicolas/whatsmyip:$tag leonnicolas/whatsmyip:arm --os linux --arch arm --variant v7 
+  - docker manifest annotate leonnicolas/whatsmyip:$tag leonnicolas/whatsmyip:arm64 --os linux --arch arm64 --variant v8 
+  - docker manifest push leonnicolas/whatsmyip:$tag
