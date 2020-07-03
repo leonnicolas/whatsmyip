@@ -1,6 +1,8 @@
 # whatsmyip
 Simple webserver written in go that returns ip address. Main goal is to get used to docker and travis.
 
+[![Build Status](https://travis-ci.org/leonnicolas/whatsmyip.svg?branch=master)](https://travis-ci.org/leonnicolas/whatsmyip)
+
 ## Getting started
 Run 
 ```bash
